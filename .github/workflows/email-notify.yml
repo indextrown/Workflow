@@ -1,0 +1,33 @@
+# .github/workflows/email-notify.yml
+name: Email Notifications
+
+on:
+  issues:
+    types: [opened]
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  notify_by_email:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: GitHub 알림 - ${{ github.event_name }} 발생!
+          body: |
+            이벤트 종류: ${{ github.event_name }}
+            리포지토리: ${{ github.repository }}
+            액션: ${{ github.event.action || 'N/A' }}
+            커밋/이슈/PR 제목: ${{ github.event.head_commit.message || github.event.issue.title || github.event.pull_request.title }}
+            작성자: ${{ github.actor }}
+            자세히 보기: ${{ github.event.pull_request.html_url || github.event.issue.html_url || github.event.head_commit.url }}
+          to: indextrown@gmail.com, lghan00020@gmail.com
+          from: GitHub Notifier <${{ secrets.MAIL_USERNAME }}>
